@@ -1,0 +1,76 @@
+.grafico-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin: 30px auto;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  
+  .grafico-box {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+  }
+  
+  .grafico-wrapper {
+    height: 180px;
+  }
+  
+  .grafico-titulo {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2c3e50;
+    font-size: 18px;
+  }
+  
+  .botoes-tipo-grafico {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+  }
+  
+  .botoes-tipo-grafico button {
+    margin: 0 5px;
+    padding: 8px 14px;
+    border: none;
+    border-radius: 6px;
+    background-color: #e0e0e0;
+    color: #333;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+  }
+  
+  .botoes-tipo-grafico button.ativo {
+    background-color: #27ae60;
+    color: white;
+  }
+  
+  .resumo-card {
+    flex: 1;
+    min-width: 260px;
+    max-width: 300px;
+    background: white;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 10px;
+    padding: 20px;
+  }
+  
+  .resumo-card h4 {
+    margin-bottom: 16px;
+    font-size: 18px;
+    color: #2c3e50;
+    text-align: center;
+  }
+  
+  .resumo-card p {
+    margin: 10px 0;
+    font-size: 16px;
+    color: #34495e;
+  }
+  

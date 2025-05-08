@@ -1,0 +1,103 @@
+/* Estilo principal da página */
+.painel-completo {
+  background-color: #f6f6f7;
+  min-height: 100vh;
+  font-family: 'Inter', sans-serif;
+}
+
+.conteudo-relatorio {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 20px;
+}
+
+/* Título */
+.titulo-relatorio {
+  font-size: 28px;
+  font-weight: 600;
+  margin-top: 40px;
+  margin-bottom: 25px;
+  color: #2c3e50;
+}
+
+/* Filtros superiores */
+.filtros-relatorio {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.filtros-relatorio input,
+.filtros-relatorio select {
+  padding: 12px;
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: white;
+  min-width: 220px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* Botões de exportação modernos */
+.botoes-relatorio {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 30px;
+}
+
+.botao-exportar {
+  padding: 12px 22px;
+  font-size: 14px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.botao-exportar:hover {
+  transform: scale(1.03);
+}
+
+/* Estilo PDF */
+.botao-exportar.pdf {
+  background-color: #2c3e50;
+  color: white;
+}
+
+.botao-exportar.pdf:hover {
+  background-color: #34495e;
+}
+
+/* Estilo Excel */
+.botao-exportar.excel {
+  background-color: #27ae60;
+  color: white;
+}
+
+.botao-exportar.excel:hover {
+  background-color: #2ecc71;
+}
+
+/* Blocos de relatório */
+.relatorio-bloco {
+  background: white;
+  border-radius: 10px;
+  padding: 24px 30px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.relatorio-bloco h2 {
+  font-size: 20px;
+  color: #2c3e50;
+  margin-bottom: 10px;
+}
+
+.bloco-tabela-placeholder {
+  font-style: italic;
+  color: #7f8c8d;
+  padding: 15px 0;
+}

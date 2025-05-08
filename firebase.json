@@ -1,0 +1,23 @@
+{
+  "functions": {
+    "source": "../functions"
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "emulators": {
+    "functions": {
+      "port": 5012
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "port": 4000
+    },
+    "hub": {
+      "port": 4400
+    }
+  }
+}
