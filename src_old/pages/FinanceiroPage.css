@@ -1,0 +1,287 @@
+/* /home/ubuntu/FinanceiroPage.css - Padronizado com AdminDashboard */
+
+/* --- Globals & Page Structure --- */
+body {
+    background-color: #F9FAFB;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    color: #1F2937;
+    margin: 0;
+    line-height: 1.6;
+  }
+  
+  .financeiro-page-container {
+    padding: 20px;
+    max-width: 1100px;
+    margin: 40px auto;
+  }
+  
+  .financeiro-page-container h1 {
+    font-size: 2em;
+    color: #1F2937;
+    margin-bottom: 30px;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .financeiro-page-container h2 {
+    font-size: 1.5em;
+    color: #1F2937;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  /* --- Card Style (Genérico, inspirado no AdminDashboard) --- */
+  .card-style {
+    background-color: #FFFFFF;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+  
+  /* --- Seção de Métricas (Container apenas) --- */
+  .metricas-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-bottom: 30px;
+    justify-content: center;
+  }
+  
+  /* --- Seção de Gráficos --- */
+  .graficos-container {
+    padding: 20px;
+    margin-bottom: 25px;
+  }
+  
+  .graficos-container h2 {
+    margin-top: 0;
+    border-bottom: none;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .recharts-default-tooltip {
+    border-radius: 6px !important;
+    border: 1px solid #ccc !important;
+    background-color: #FFFFFF !important;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+  }
+  
+  .recharts-legend-item-text {
+    color: #374151 !important;
+  }
+  
+  /* --- Formulário (Nova Transação) --- */
+  .form-nova-transacao .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 18px;
+  }
+  
+  .form-nova-transacao label {
+    font-weight: 500;
+    color: #374151;
+    font-size: 0.9em;
+    text-align: left;
+  }
+  
+  .form-nova-transacao input[type="text"],
+  .form-nova-transacao input[type="number"],
+  .form-nova-transacao input[type="date"],
+  .form-nova-transacao select {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95em;
+    background-color: #FFFFFF;
+    color: #1F2937;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .form-nova-transacao input[type="text"]:focus,
+  .form-nova-transacao input[type="number"]:focus,
+  .form-nova-transacao input[type="date"]:focus,
+  .form-nova-transacao select:focus {
+    outline: none;
+    border-color: #3B82F6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  .form-nova-transacao button[type="submit"] {
+    padding: 10px 18px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2563EB;
+    color: white;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .form-nova-transacao button[type="submit"]:hover {
+    background-color: #1D4ED8;
+  }
+  
+  .form-nova-transacao .error-message {
+    color: #E53E3E;
+    font-size: 0.85em;
+    margin-top: -10px;
+    margin-bottom: 12px;
+    text-align: left;
+  }
+  
+  /* --- Filtros do Histórico --- */
+  .filtros-historico {
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: #FFFFFF;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+  }
+  
+  /* --- Tabela de Histórico --- */
+  .tabela-historico-wrapper {
+    background-color: #FFFFFF;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0;
+    overflow-x: auto;
+    margin-top: 20px;
+  }
+  
+  .tabela-historico {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .tabela-historico th,
+  .tabela-historico td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #e0e0e0;
+    white-space: nowrap;
+  }
+  
+  .tabela-historico th {
+    background-color: #F9FAFB;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .tabela-historico td {
+    color: #4A5568;
+    font-size: 0.9em;
+  }
+  
+  .tabela-historico tr:last-child td {
+    border-bottom: none;
+  }
+  
+  .tabela-historico .valor-entrada {
+    color: #38A169;
+    font-weight: 500;
+  }
+  
+  .tabela-historico .valor-saida {
+    color: #E53E3E;
+    font-weight: 500;
+  }
+  
+  /* --- Responsividade --- */
+  @media (max-width: 768px) {
+    .metricas-container {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .filtros-historico {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  
+    .tabela-historico thead {
+      display: none;
+    }
+  
+    .tabela-historico,
+    .tabela-historico tbody,
+    .tabela-historico tr,
+    .tabela-historico td {
+      display: block;
+      width: 100% !important;
+      box-sizing: border-box;
+    }
+  
+    .tabela-historico tr {
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #FFFFFF;
+    }
+  
+    .tabela-historico td {
+      padding-left: 40%;
+      position: relative;
+      border-bottom: 1px dashed #e0e0e0;
+      padding-top: 8px;
+      padding-bottom: 8px;
+      white-space: normal;
+    }
+  
+    .tabela-historico td:last-child {
+      border-bottom: none;
+    }
+  
+    .tabela-historico td:before {
+      content: attr(data-label);
+      position: absolute;
+      left: 10px;
+      width: 35%;
+      padding-right: 10px;
+      font-weight: 500;
+      color: #374151;
+      font-size: 0.85em;
+      white-space: nowrap;
+    }
+  }
+  
+  /* --- Mensagens de feedback --- */
+  .loading-message,
+  .no-transacoes-message {
+    text-align: center;
+    padding: 25px 20px;
+    color: #4A5568;
+    font-size: 1em;
+    background-color: #FFFFFF;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-top: 20px;
+  }
+  
+  .error-message {
+    color: #E53E3E;
+    background-color: #FFF5F5;
+    border: 1px solid #E53E3E;
+    padding: 10px 15px;
+    border-radius: 6px;
+    margin-bottom: 15px;
+    font-size: 0.9em;
+  }
+    

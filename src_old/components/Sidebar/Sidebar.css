@@ -1,0 +1,54 @@
+@import url('../../theme.css');
+
+.sidebar {
+  background-color: var(--cor-branca);
+  border-right: 1px solid var(--cor-borda);
+  height: 100vh;
+  width: 240px;
+  padding: 20px 10px;
+  transition: width 0.3s ease;
+}
+
+.sidebar.collapsed {
+  width: 70px;
+}
+
+.toggle-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  color: var(--cor-secundaria);
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--cor-secundaria);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  background-color: var(--cor-primaria);
+  color: white;
+}
+
+.icon {
+  font-size: 20px;
+  display: inline-block;
+  width: 24px;
+  text-align: center;
+}

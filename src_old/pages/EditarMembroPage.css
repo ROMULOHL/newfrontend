@@ -1,0 +1,136 @@
+.editar-membro-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .editar-membro-container h1 {
+    font-size: 2em;
+    margin-bottom: 30px;
+    color: #1f2937;
+    text-align: center;
+    font-weight: 600;
+  }
+  
+  .formulario-membro {
+    display: grid;
+    gap: 20px;
+  }
+  
+  .campo {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .campo label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+  }
+  
+  .campo input[type="text"],
+  .campo input[type="email"],
+  .campo input[type="number"],
+  .campo input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 0.95em;
+    background-color: #fff;
+    transition: border-color 0.2s ease-in-out;
+  }
+  
+  .campo input:focus {
+    border-color: #3B82F6;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+  }
+  
+  .campo-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    color: #374151;
+  }
+  
+  button[type="submit"] {
+    background-color: #2563EB;
+    color: white;
+    padding: 12px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out;
+    margin-top: 10px;
+    width: 100%;
+  }
+  
+  button[type="submit"]:hover {
+    background-color: #1D4ED8;
+  }
+  
+  .dizimos-section {
+    margin-top: 50px;
+  }
+  
+  .dizimos-section h2 {
+    font-size: 1.4em;
+    color: #1f2937;
+    margin-bottom: 15px;
+    font-weight: 500;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 8px;
+  }
+  
+  .tabela-dizimos {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  
+  .tabela-dizimos th,
+  .tabela-dizimos td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #e0e0e0;
+    text-align: left;
+    font-size: 0.95em;
+    color: #374151;
+  }
+  
+  .tabela-dizimos th {
+    background-color: #f9fafb;
+    text-transform: uppercase;
+    font-weight: 600;
+    font-size: 0.85em;
+    color: #4B5563;
+  }
+  
+  @media (max-width: 768px) {
+    .editar-membro-container {
+      padding: 20px;
+      margin: 20px;
+    }
+  
+    .formulario-membro {
+      grid-template-columns: 1fr;
+    }
+  
+    button[type="submit"] {
+      font-size: 1em;
+    }
+  
+    .tabela-dizimos th,
+    .tabela-dizimos td {
+      font-size: 0.85em;
+      padding: 10px;
+    }
+  }
+  
+  

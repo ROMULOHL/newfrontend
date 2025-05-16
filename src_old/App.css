@@ -1,0 +1,30 @@
+/* App.css */
+.card-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  gap: var(--espacamento);
+  margin: 30px 40px;
+  padding-top: 20px;
+  overflow-x: auto;
+}
+
+/* Exemplo de card reutilizável */
+.card {
+  background-color: var(--cor-card);
+  border: 1px solid var(--cor-borda);
+  border-radius: 8px;
+  padding: 20px;
+  flex: 1;
+  min-width: 200px;
+  text-align: center;
+}
+
+/* Cores por tipo */
+.valor-entrada {
+  color: var(--cor-entrada);
+}
+
+.valor-saida {
+  color: var(--cor-saida);
+}

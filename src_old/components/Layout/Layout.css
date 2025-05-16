@@ -1,0 +1,14 @@
+@import url('../../theme.css');
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  font-family: var(--fonte-padrao);
+  background-color: var(--cor-fundo);
+}
+
+.layout-main {
+  flex: 1;
+  padding: 30px;
+}
+

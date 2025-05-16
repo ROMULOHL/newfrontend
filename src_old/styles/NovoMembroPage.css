@@ -1,0 +1,67 @@
+@import url('../theme.css');
+
+.form-container {
+  background: var(--cor-branca);
+  padding: 30px;
+  border-radius: 10px;
+  max-width: 800px;
+  margin: 0 auto;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.form-container h1 {
+  margin-top: 0;
+  margin-bottom: 25px;
+}
+
+.form-membro {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-row input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 6px;
+  border: 1px solid var(--cor-borda);
+  font-size: 1em;
+  background-color: white;
+}
+
+.form-checkboxes {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.95em;
+  color: var(--cor-secundaria);
+}
+
+.form-checkboxes label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.salvar-btn {
+  align-self: flex-start;
+  background-color: var(--cor-primaria);
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 1em;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.salvar-btn:hover {
+  background-color: #1d4ed8;
+}

@@ -1,0 +1,32 @@
+.card-metrica {
+    background-color: #FFFFFF;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 20px;
+    min-width: 200px;
+    flex: 1;
+    max-width: 280px;
+    text-align: center;
+  }
+  
+  .card-metrica-titulo {
+    font-size: 0.95em;
+    color: #4A5568;
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  
+  .card-metrica-valor {
+    font-size: 1.8em;
+    font-weight: 600;
+    color: #1F2937;
+  }
+  
+  .card-metrica-valor.valor-entrada {
+    color: #38A169;
+  }
+  
+  .card-metrica-valor.valor-saida {
+    color: #E53E3E;
+  }
+  
