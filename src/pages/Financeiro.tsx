@@ -209,7 +209,7 @@ const Financeiro: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-church-text">Financeiro</h1>
+        <h1 className="text-4xl font-bold mb-6">Financeiro</h1>
         <div className="flex gap-2">
           <Button 
             className="bg-church-income hover:bg-church-income/90 flex items-center gap-2"
@@ -474,7 +474,7 @@ const Financeiro: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-            {tipoEntrada === "Dizimo" && (
+            {tipoEntrada === "Dízimo" && (
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="membro-dizimo" className="text-right">Membro</Label>
                 <Select value={membroDizimo} onValueChange={setMembroDizimo}>

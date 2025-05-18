@@ -33,7 +33,7 @@ export const RelatorioHeader: React.FC<RelatorioHeaderProps> = ({ title }) => {
   return (
     <div className="flex flex-col gap-4 mb-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-church-button">{title}</h1>
+        <h1 className="text-4xl font-bold text-church-button">{title}</h1>
         <div className="flex gap-2">
           <Button variant="outline" className="flex items-center gap-2">
             <Calendar size={18} />

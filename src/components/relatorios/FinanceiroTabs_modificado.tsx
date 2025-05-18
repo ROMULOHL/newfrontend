@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from "react"; // Adicionado useEffect
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, TableFooter } from "@/components/ui/table";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { CardChurch, CardContent, CardHeader, CardTitle } from "@/components/ui/card-church";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useFinancialData, Transacao, Entrada, Saida, Saldos, FormaPagamento } from "@/contexts/FinancialContext"; 
 // Removido useData, pois usaremos tudo do FinancialContext para consistência de tipos de transação
@@ -94,6 +94,28 @@ const EntradasTab: React.FC<EntradasTabProps> = ({ entradas, saldosPeriodo }) =>
     return <p>Calculando resumo de entradas...</p>;
   }
 
+  // Função para determinar a cor de fundo com base no método de pagamento
+  const getMetodoBackgroundColor = (metodo: string) => {
+    const metodoLower = metodo.toLowerCase();
+    if (metodoLower.includes('pix')) return 'bg-blue-50';
+    if (metodoLower.includes('cartão') || metodoLower.includes('cartao')) return 'bg-purple-50';
+    if (metodoLower.includes('dinheiro')) return 'bg-amber-50';
+    if (metodoLower.includes('não informado') || metodoLower.includes('nao informado')) return 'bg-gray-50';
+    // Cores alternativas para outros métodos
+    return ['bg-teal-50', 'bg-indigo-50', 'bg-rose-50'][Math.floor(Math.random() * 3)];
+  };
+
+  // Função para determinar a cor do texto com base no método de pagamento
+  const getMetodoTextColor = (metodo: string) => {
+    const metodoLower = metodo.toLowerCase();
+    if (metodoLower.includes('pix')) return 'text-blue-600';
+    if (metodoLower.includes('cartão') || metodoLower.includes('cartao')) return 'text-purple-600';
+    if (metodoLower.includes('dinheiro')) return 'text-amber-600';
+    if (metodoLower.includes('não informado') || metodoLower.includes('nao informado')) return 'text-gray-600';
+    // Cores alternativas para outros métodos
+    return ['text-teal-600', 'text-indigo-600', 'text-rose-600'][Math.floor(Math.random() * 3)];
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
@@ -112,19 +134,19 @@ const EntradasTab: React.FC<EntradasTabProps> = ({ entradas, saldosPeriodo }) =>
         </Select>
       </div>
 
-      <Card>
+      <CardChurch>
         <CardHeader>
           <CardTitle>Entradas por Categoria</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
-            <TableHeader>
+            <TableHeader className="bg-gray-50">
               <TableRow>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Descrição</TableHead>
-                <TableHead>Membro</TableHead>
-                <TableHead>Método</TableHead>
-                <TableHead className="text-right">Valor</TableHead>
+                <TableHead className="text-church-text font-medium">Tipo</TableHead>
+                <TableHead className="text-church-text font-medium">Descrição</TableHead>
+                <TableHead className="text-church-text font-medium">Membro</TableHead>
+                <TableHead className="text-church-text font-medium">Método</TableHead>
+                <TableHead className="text-church-text font-medium text-right">Valor</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -154,57 +176,73 @@ const EntradasTab: React.FC<EntradasTabProps> = ({ entradas, saldosPeriodo }) =>
             )}
           </Table>
         </CardContent>
-      </Card>
+      </CardChurch>
 
-      <Card>
+      <CardChurch>
         <CardHeader>
           <CardTitle>Resumo de Entradas por Categoria</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {saldosPeriodo.distribuicaoReceitas && saldosPeriodo.distribuicaoReceitas.length > 0 ? 
-              saldosPeriodo.distribuicaoReceitas.map((item) => (
-                <div key={item.categoria || 'sem-categoria'} className="p-4 border rounded-md bg-green-50">
-                  <h3 className="font-semibold text-green-700">{item.categoria || "Outras"}</h3>
-                  <p className="text-xl font-bold text-green-900">{formatCurrency(item.valor)}</p>
-                  <p className="text-sm text-muted-foreground">{item.percentual}% do total</p>
-                </div>
-              ))
+              saldosPeriodo.distribuicaoReceitas.map((item, index) => {
+                // Alternando cores para cada categoria
+                const colors = [
+                  { bg: 'bg-green-50', text: 'text-green-700', value: 'text-green-600' },
+                  { bg: 'bg-blue-50', text: 'text-blue-700', value: 'text-blue-600' },
+                  { bg: 'bg-amber-50', text: 'text-amber-700', value: 'text-amber-600' },
+                  { bg: 'bg-purple-50', text: 'text-purple-700', value: 'text-purple-600' }
+                ];
+                const colorSet = colors[index % colors.length];
+                
+                return (
+                  <div key={item.categoria || 'sem-categoria'} className={`p-4 border rounded-md ${colorSet.bg}`}>
+                    <h3 className={`font-semibold ${colorSet.text}`}>{item.categoria || "Outras"}</h3>
+                    <p className={`text-xl font-bold ${colorSet.value}`}>{formatCurrency(item.valor)}</p>
+                    <p className="text-sm text-muted-foreground">{item.percentual}% do total</p>
+                  </div>
+                );
+              })
               : <p>Sem dados de distribuição para o período.</p>
             }
           </div>
         </CardContent>
-      </Card>
+      </CardChurch>
       
       {/* Nova seção: Resumo por Método de Pagamento */}
-      <Card>
+      <CardChurch>
         <CardHeader>
           <CardTitle>Resumo por Método de Pagamento</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {resumoPorMetodoPagamento.length > 0 ? 
-              resumoPorMetodoPagamento.map((item) => (
-                <div key={item.metodo} className="p-4 border rounded-md bg-blue-50">
-                  <h3 className="font-semibold text-blue-700">{capitalizeFirstLetter(item.metodo)}</h3>
-                  <p className="text-xl font-bold text-blue-900">{formatCurrency(item.valor)}</p>
-                  <p className="text-sm text-muted-foreground">{item.percentual}% do total</p>
-                </div>
-              ))
+              resumoPorMetodoPagamento.map((item) => {
+                const bgColor = getMetodoBackgroundColor(item.metodo);
+                const textColor = getMetodoTextColor(item.metodo);
+                
+                return (
+                  <div key={item.metodo} className={`p-4 border rounded-md ${bgColor}`}>
+                    <h3 className={`font-semibold ${textColor}`}>{capitalizeFirstLetter(item.metodo)}</h3>
+                    <p className={`text-xl font-bold ${textColor}`}>{formatCurrency(item.valor)}</p>
+                    <p className="text-sm text-muted-foreground">{item.percentual}% do total</p>
+                  </div>
+                );
+              })
               : <p>Sem dados de métodos de pagamento para o período.</p>
             }
           </div>
         </CardContent>
-      </Card>
+      </CardChurch>
       
-      <Card>
+      <CardChurch>
         <CardHeader>
           <CardTitle>Total de Entradas no Período</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold text-green-600">{formatCurrency(saldosPeriodo.entradasMes)}</p>
+          <p className="text-3xl font-bold text-church-income">{formatCurrency(saldosPeriodo.entradasMes)}</p>
         </CardContent>
-      </Card>
+      </CardChurch>
     </div>
   );
 };
@@ -232,17 +270,17 @@ const SaidasTab: React.FC<SaidasTabProps> = ({ saidas, saldosPeriodo }) => {
       {Object.entries(saidasAgrupadas).map(([categoriaPrincipal, saidasDoGrupo]) => {
         const subtotalGrupo = saidasDoGrupo.reduce((acc, s) => acc + s.valor, 0);
         return (
-          <Card key={categoriaPrincipal}>
+          <CardChurch key={categoriaPrincipal}>
             <CardHeader>
               <CardTitle>{categoriaPrincipal}</CardTitle>
             </CardHeader>
             <CardContent>
               <Table>
-                <TableHeader>
+                <TableHeader className="bg-gray-50">
                   <TableRow>
-                    <TableHead>Subcategoria</TableHead>
-                    <TableHead>Descrição</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="text-church-text font-medium">Subcategoria</TableHead>
+                    <TableHead className="text-church-text font-medium">Descrição</TableHead>
+                    <TableHead className="text-church-text font-medium text-right">Valor</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -250,33 +288,33 @@ const SaidasTab: React.FC<SaidasTabProps> = ({ saidas, saldosPeriodo }) => {
                     <TableRow key={saida.id ?? Math.random()}>
                       <TableCell>{saida.subCategoria || saida.categoria || "-"}</TableCell>
                       <TableCell>{saida.descricao || "-"}</TableCell>
-                      <TableCell className="text-right text-red-600">{formatCurrency(saida.valor)}</TableCell>
+                      <TableCell className="text-right text-church-expense">{formatCurrency(saida.valor)}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
                 <TableFooter>
                   <TableRow>
                     <TableCell colSpan={2} className="text-right font-bold">Subtotal {categoriaPrincipal}</TableCell>
-                    <TableCell className="text-right font-bold text-red-700">{formatCurrency(subtotalGrupo)}</TableCell>
+                    <TableCell className="text-right font-bold text-church-expense">{formatCurrency(subtotalGrupo)}</TableCell>
                   </TableRow>
                 </TableFooter>
               </Table>
             </CardContent>
-          </Card>
+          </CardChurch>
         );
       })}
       {saidas.length === 0 && (
-         <Card><CardContent><p className="text-center py-4">Nenhuma saída encontrada para o período selecionado.</p></CardContent></Card>
+         <CardChurch><CardContent><p className="text-center py-4">Nenhuma saída encontrada para o período selecionado.</p></CardContent></CardChurch>
       )}
 
-      <Card>
+      <CardChurch>
         <CardHeader>
           <CardTitle>Total de Saídas no Período</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-3xl font-bold text-red-600">{formatCurrency(saldosPeriodo.saidasMes)}</p>
+          <p className="text-3xl font-bold text-church-expense">{formatCurrency(saldosPeriodo.saidasMes)}</p>
         </CardContent>
-      </Card>
+      </CardChurch>
     </div>
   );
 };
@@ -374,10 +412,30 @@ export const FinanceiroTabs: React.FC<FinanceiroTabsProps> = ({ dataInicio, data
   return (
     <Tabs defaultValue="entradas" className="w-full">
       <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 gap-2 mb-4">
-        <TabsTrigger value="entradas">Entradas</TabsTrigger>
-        <TabsTrigger value="saidas">Saídas</TabsTrigger>
-        <TabsTrigger value="resumo">Resumo do Período</TabsTrigger>
-        <TabsTrigger value="saldo_total">Saldo Geral</TabsTrigger>
+        <TabsTrigger 
+          value="entradas" 
+          className="bg-green-100 hover:bg-green-200 data-[state=active]:bg-green-500 data-[state=active]:text-white"
+        >
+          Entradas
+        </TabsTrigger>
+        <TabsTrigger 
+          value="saidas" 
+          className="bg-red-100 hover:bg-red-200 data-[state=active]:bg-red-500 data-[state=active]:text-white"
+        >
+          Saídas
+        </TabsTrigger>
+        <TabsTrigger 
+          value="resumo" 
+          className="bg-blue-100 hover:bg-blue-200 data-[state=active]:bg-blue-500 data-[state=active]:text-white"
+        >
+          Resumo do Período
+        </TabsTrigger>
+        <TabsTrigger 
+          value="saldo_total" 
+          className="bg-purple-100 hover:bg-purple-200 data-[state=active]:bg-purple-500 data-[state=active]:text-white"
+        >
+          Saldo Geral
+        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="entradas">
@@ -390,38 +448,51 @@ export const FinanceiroTabs: React.FC<FinanceiroTabsProps> = ({ dataInicio, data
 
       <TabsContent value="resumo">
         {saldosCalculadosPeriodo ? (
-          <Card>
+          <CardChurch>
             <CardHeader><CardTitle>Resumo Financeiro do Período</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex justify-between items-center p-4 border rounded-md bg-blue-50">
-                <span className="text-lg font-medium text-blue-700">Total de Entradas no Período:</span>
+              <div className="flex justify-between items-center p-4 border rounded-md bg-green-50">
+                <span className="text-lg font-medium text-green-700">Total de Entradas no Período:</span>
                 <span className="text-xl font-bold text-green-600">{formatCurrency(saldosCalculadosPeriodo.entradasMes)}</span>
               </div>
               <div className="flex justify-between items-center p-4 border rounded-md bg-red-50">
                 <span className="text-lg font-medium text-red-700">Total de Saídas no Período:</span>
                 <span className="text-xl font-bold text-red-600">{formatCurrency(saldosCalculadosPeriodo.saidasMes)}</span>
               </div>
-              <div className="flex justify-between items-center p-4 border rounded-md bg-indigo-50">
-                <span className="text-lg font-medium text-indigo-700">Saldo do Período:</span>
-                <span className={`text-xl font-bold ${saldosCalculadosPeriodo.saldoMes >= 0 ? 'text-indigo-600' : 'text-red-600'}`}>
+              <div className="flex justify-between items-center p-4 border rounded-md bg-blue-50">
+                <span className="text-lg font-medium text-blue-700">Saldo do Período:</span>
+                <span className={`text-xl font-bold ${saldosCalculadosPeriodo.saldoMes >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {formatCurrency(saldosCalculadosPeriodo.saldoMes)}
                 </span>
               </div>
             </CardContent>
-          </Card>
-        ) : <p>Calculando resumo...</p>}
+          </CardChurch>
+        ) : (
+          <p className="text-center py-4">Calculando resumo financeiro...</p>
+        )}
       </TabsContent>
-      
+
       <TabsContent value="saldo_total">
         {saldosCalculadosPeriodo ? (
-            <Card>
-                <CardHeader><CardTitle>Saldo Geral Acumulado</CardTitle></CardHeader>
-                <CardContent>
-                    <p className="text-3xl font-bold text-purple-600">{formatCurrency(saldosCalculadosPeriodo.saldoTotal)}</p>
-                    <p className="text-sm text-muted-foreground">Este é o saldo considerando todas as transações registradas.</p>
-                </CardContent>
-            </Card>
-        ) : <p>Calculando saldo total...</p>}
+          <CardChurch>
+            <CardHeader><CardTitle>Saldo Geral da Igreja</CardTitle></CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex justify-between items-center p-4 border rounded-md bg-purple-50">
+                <span className="text-lg font-medium text-purple-700">Saldo Total Acumulado:</span>
+                <span className={`text-2xl font-bold ${saldosCalculadosPeriodo.saldoTotal >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {formatCurrency(saldosCalculadosPeriodo.saldoTotal)}
+                </span>
+              </div>
+              <div className="mt-4">
+                <p className="text-sm text-muted-foreground">
+                  Este valor representa o saldo total acumulado da igreja, considerando todas as entradas e saídas registradas no sistema até o momento.
+                </p>
+              </div>
+            </CardContent>
+          </CardChurch>
+        ) : (
+          <p className="text-center py-4">Calculando saldo geral...</p>
+        )}
       </TabsContent>
     </Tabs>
   );

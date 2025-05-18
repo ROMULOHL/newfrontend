@@ -247,7 +247,7 @@ const Membros: React.FC = () => {
   return (
     <DashboardLayout>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-church-button">Cadastro de Membros</h1>
+        <h1 className="text-4xl font-bold text-church-button">Cadastro de Membros</h1>
         <Button 
           className="bg-church-button hover:bg-church-button/90 flex items-center gap-2"
           onClick={() => handleOpenAddOrEditDialog()} 

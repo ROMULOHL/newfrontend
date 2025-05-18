@@ -78,6 +78,7 @@ export const DataProvider = ({ children, igrejaId }: DataProviderProps) => {
           funcao: data.funcao || "",
           profissao: data.profissao || "",
           estadoCivil: data.estadoCivil || "",
+          genero: data.genero || "", // Campo de gênero adicionado
           dizimista: data.dizimista === true, // Garante booleano
           batizado: data.batizado === true,   // Garante booleano
           cursos: data.cursos || {
@@ -190,6 +191,7 @@ export const DataProvider = ({ children, igrejaId }: DataProviderProps) => {
         funcao: data.funcao || "",
         profissao: data.profissao || "",
         estadoCivil: data.estadoCivil || "",
+        genero: data.genero || "", // Campo de gênero adicionado
         dizimista: data.dizimista === true,
         batizado: data.batizado === true,
         cursos: data.cursos || {

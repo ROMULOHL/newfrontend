@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Users, DollarSign, FileText, Settings, Menu, X, LayoutDashboard } from "lucide-react";
+import { Users, DollarSign, FileText, Settings, Menu, X, LayoutDashboard, LogOut } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 type NavItemProps = {
   to: string;
@@ -31,9 +32,24 @@ const NavItem = ({ to, icon: Icon, label, isActive, onClick }: NavItemProps) => 
   );
 };
 
+// Componente para o botão de logout
+const LogoutButton = ({ isCollapsed, onClick }: { isCollapsed: boolean, onClick: () => void }) => {
+  return (
+    <Button
+      variant="ghost"
+      className="w-full justify-start gap-2 px-3 py-6 text-left h-auto text-church-expense hover:bg-gray-100"
+      onClick={onClick}
+    >
+      <LogOut size={20} />
+      {!isCollapsed && <span className="font-medium">Sair</span>}
+    </Button>
+  );
+};
+
 export const Sidebar = () => {
   const location = useLocation();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { logout } = useAuth();
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -101,6 +117,9 @@ export const Sidebar = () => {
             onClick={isCollapsed ? toggleSidebar : undefined}
           />
         ))}
+        
+        {/* Botão de Sair adicionado abaixo do último item */}
+        <LogoutButton isCollapsed={isCollapsed} onClick={logout} />
       </nav>
 
       <div className="p-4 border-t border-gray-200">

@@ -62,7 +62,7 @@ const Relatorios: React.FC = () => {
 
       {showFilterPanel && (
         <CardChurch className="mb-6 animate-fade-in">
-          <CardContent className="p-4 space-y-4">
+          <CardContent className="p-8 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label htmlFor="dataInicioInput" className="block text-sm font-medium text-gray-700 mb-1">Data Início</label>
@@ -102,8 +102,8 @@ const Relatorios: React.FC = () => {
 
       <Tabs defaultValue="financeiro" className="w-full mb-6">
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="financeiro" className="data-[state=active]:bg-church-button data-[state=active]:text-white">Financeiro</TabsTrigger>
-          <TabsTrigger value="membros" className="data-[state=active]:bg-church-button data-[state=active]:text-white">Membros</TabsTrigger>
+          <TabsTrigger value="financeiro" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Financeiro</TabsTrigger>
+          <TabsTrigger value="membros" className="data-[state=active]:bg-red-500 data-[state=inactive]:bg-white">Membros</TabsTrigger>
         </TabsList>
         
         <TabsContent value="financeiro" className="mt-0 border-0 p-0">

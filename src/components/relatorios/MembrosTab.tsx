@@ -3,7 +3,8 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { CardChurch, CardContent, CardHeader, CardTitle } from "@/components/ui/card-church";
 import { useData } from "@/contexts/DataContext";
-import { Member } from "@/contexts/DataContextTypes";
+import { Member, FirestoreTimestamp } from "@/contexts/DataContextTypes";
+import { cn, inferirGeneroPorNome } from "@/lib/utils"
 
 interface MembrosTabProps {
   dataInicio?: Date | null;
@@ -22,17 +23,43 @@ export const MembrosTab: React.FC<MembrosTabProps> = ({ dataInicio, dataFim }) =
   // Obter dados do contexto
   const { membros, loading } = useData();
 
+  // Função para converter qualquer tipo de data para Date
+  const converterParaDate = (data: Date | FirestoreTimestamp | string | undefined): Date | null => {
+    if (!data) return null;
+    
+    try {
+      // Se for Date, retorna diretamente
+      if (data instanceof Date) return data;
+      
+      // Se for string, converte para Date
+      if (typeof data === 'string') return new Date(data);
+      
+      // Se for FirestoreTimestamp, converte para Date
+      if ('seconds' in data && 'nanoseconds' in data) {
+        return new Date(data.seconds * 1000);
+      }
+      
+      return null;
+    } catch (error) {
+      console.error("Erro ao converter data:", error);
+      return null;
+    }
+  };
+
   // Função para calcular a idade a partir da data de nascimento
-  const calcularIdade = (dataNascimento: string | undefined): number => {
+  const calcularIdade = (dataNascimento: string | Date | FirestoreTimestamp | undefined): number => {
     if (!dataNascimento) return 0;
     
     try {
       const hoje = new Date();
-      const nascimento = new Date(dataNascimento);
-      let idade = hoje.getFullYear() - nascimento.getFullYear();
-      const m = hoje.getMonth() - nascimento.getMonth();
+      const nascimentoDate = converterParaDate(dataNascimento);
       
-      if (m < 0 || (m === 0 && hoje.getDate() < nascimento.getDate())) {
+      if (!nascimentoDate) return 0;
+      
+      let idade = hoje.getFullYear() - nascimentoDate.getFullYear();
+      const m = hoje.getMonth() - nascimentoDate.getMonth();
+      
+      if (m < 0 || (m === 0 && hoje.getDate() < nascimentoDate.getDate())) {
         idade--;
       }
       
@@ -45,26 +72,16 @@ export const MembrosTab: React.FC<MembrosTabProps> = ({ dataInicio, dataFim }) =
 
   // Filtrar membros por período (novos no mês)
   const membrosFiltradosPorPeriodo = useMemo(() => {
-    if (!membros || membros.length === 0) return [];
+    if (!membros || membros.length === 0 || !dataInicio || !dataFim) return [];
     
-    let membrosFiltrados = [...membros];
-    
-    if (dataInicio && dataFim) {
-      // Filtrar membros cadastrados no período selecionado
-      membrosFiltrados = membrosFiltrados.filter(membro => {
-        if (!membro.dataCadastro) return false;
-        
-        // Converter para string ISO se for Date
-        const dataCadastroStr = typeof membro.dataCadastro === 'string' 
-          ? membro.dataCadastro 
-          : membro.dataCadastro.toISOString();
-        
-        const dataCadastro = new Date(dataCadastroStr);
-        return dataCadastro >= dataInicio && dataCadastro <= dataFim;
-      });
-    }
-    
-    return membrosFiltrados;
+    return membros.filter(membro => {
+      if (!membro.dataCadastro) return false;
+      
+      const dataCadastroDate = converterParaDate(membro.dataCadastro);
+      if (!dataCadastroDate) return false;
+      
+      return dataCadastroDate >= dataInicio && dataCadastroDate <= dataFim;
+    });
   }, [membros, dataInicio, dataFim]);
 
   // Aplicar filtros de usuário (idade, estado civil, função, status)
@@ -150,26 +167,45 @@ export const MembrosTab: React.FC<MembrosTabProps> = ({ dataInicio, dataFim }) =
     };
   }, [membros, membrosFiltradosPorPeriodo]);
 
-  // Calcular distribuição por gênero (estimativa baseada no nome)
+  // Calcular distribuição por gênero
   const distribuicaoGenero = useMemo(() => {
     if (!membrosFiltrados || membrosFiltrados.length === 0) {
       return { masculino: 0, feminino: 0, percentualMasculino: 50, percentualFeminino: 50 };
     }
 
-    // Como não temos campo de gênero, vamos usar uma estimativa padrão
-    // Em uma implementação real, você pode adicionar um campo de gênero ao cadastro
-    // ou usar uma API para estimar o gênero com base no nome
     const total = membrosFiltrados.length;
     
-    // Valores padrão para demonstração
-    const masculino = Math.round(total * 0.45);
-    const feminino = total - masculino;
+    // Usar a função de inferência para determinar o gênero
+    const masculino = membrosFiltrados.filter(m => {
+      // Primeiro verifica se já existe o campo genero
+      if (m.genero) {
+        return m.genero.toLowerCase() === 'masculino' || m.genero.toLowerCase() === 'm';
+      }
+      // Se não existir, infere pelo nome
+      return inferirGeneroPorNome(m.nome) === 'masculino';
+    }).length;
+    
+    const feminino = membrosFiltrados.filter(m => {
+      // Primeiro verifica se já existe o campo genero
+      if (m.genero) {
+        return m.genero.toLowerCase() === 'feminino' || m.genero.toLowerCase() === 'f';
+      }
+      // Se não existir, infere pelo nome
+      return inferirGeneroPorNome(m.nome) === 'feminino';
+    }).length;
+    
+    // Casos não detectados (se houver)
+    const naoDetectados = total - masculino - feminino;
+    
+    // Distribuir os não detectados proporcionalmente
+    const masculinoFinal = masculino + Math.round(naoDetectados * (masculino / (masculino + feminino || 1)));
+    const femininoFinal = total - masculinoFinal;
     
     return {
-      masculino,
-      feminino,
-      percentualMasculino: total > 0 ? Math.round((masculino / total) * 100) : 50,
-      percentualFeminino: total > 0 ? Math.round((feminino / total) * 100) : 50
+      masculino: masculinoFinal,
+      feminino: femininoFinal,
+      percentualMasculino: total > 0 ? Math.round((masculinoFinal / total) * 100) : 50,
+      percentualFeminino: total > 0 ? Math.round((femininoFinal / total) * 100) : 50
     };
   }, [membrosFiltrados]);
 
