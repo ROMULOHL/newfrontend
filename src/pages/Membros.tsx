@@ -380,120 +380,148 @@ const Membros: React.FC = () => {
       </CardChurch>
 
       <Dialog open={isAddOrEditDialogOpen} onOpenChange={setIsAddOrEditDialogOpen}>
-        <DialogContent className="sm:max-w-7xl bg-white">
+        <DialogContent className="sm:max-w-2xl bg-white max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{currentMemberId ? "Editar Membro" : "Adicionar Novo Membro"}</DialogTitle>
             <DialogDescription>
               {currentMemberId ? "Atualize os dados do membro." : "Preencha todos os dados para cadastrar um novo membro."}
             </DialogDescription>
           </DialogHeader>
-          <div className="grid gap-4 py-4 max-h-[70vh] overflow-y-auto pr-2">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="nome-form" className="text-right">Nome</Label>
-              <Input id="nome-form" value={nome} onChange={(e) => setNome(e.target.value)} className="col-span-3" />
+          
+          {/* Layout em modo retrato (vertical) com mais espaço */}
+          <div className="grid grid-cols-1 gap-4 py-4">
+            <div>
+              <Label htmlFor="nome">Nome</Label>
+              <Input id="nome" value={nome} onChange={(e) => setNome(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="telefone-form" className="text-right">Telefone</Label>
-              <Input id="telefone-form" value={telefone} onChange={(e) => setTelefone(e.target.value)} className="col-span-3" />
+            <div>
+              <Label htmlFor="telefone">Telefone</Label>
+              <Input id="telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="idade-form" className="text-right">Idade</Label>
-              <Input id="idade-form" value={idade} onChange={(e) => setIdade(e.target.value)} type="number" className="col-span-3" />
+            <div>
+              <Label htmlFor="idade">Idade</Label>
+              <Input id="idade" type="number" value={idade} onChange={(e) => setIdade(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="dataNascimento-form" className="text-right">Data Nasc.</Label>
-              <Input id="dataNascimento-form" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} type="date" className="col-span-3" />
+            <div>
+              <Label htmlFor="dataNascimento">Data Nasc.</Label>
+              <Input id="dataNascimento" type="date" value={dataNascimento} onChange={(e) => setDataNascimento(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="funcao-form" className="text-right">Função</Label>
-              <Input 
-                id="funcao-form" 
-                value={funcao} 
-                onChange={(e) => setFuncao(e.target.value)} 
-                className="col-span-3" 
-                placeholder="Digite a função"
-              />
+            <div>
+              <Label htmlFor="funcao">Função</Label>
+              <Input id="funcao" placeholder="Digite a função" value={funcao} onChange={(e) => setFuncao(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="profissao-form" className="text-right">Profissão</Label>
-              <Input id="profissao-form" value={profissao} onChange={(e) => setProfissao(e.target.value)} className="col-span-3" />
+            <div>
+              <Label htmlFor="profissao">Profissão</Label>
+              <Input id="profissao" value={profissao} onChange={(e) => setProfissao(e.target.value)} />
             </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="estadoCivil-form" className="text-right">Estado Civil</Label>
-              <select id="estadoCivil-form" value={estadoCivil} onChange={(e) => setEstadoCivil(e.target.value)} className="col-span-3 border rounded-md p-2 bg-white">
+            <div>
+              <Label htmlFor="estadoCivil">Estado Civil</Label>
+              <select
+                id="estadoCivil"
+                value={estadoCivil}
+                onChange={(e) => setEstadoCivil(e.target.value)}
+                className="w-full p-2 border rounded-md bg-white"
+              >
                 <option value="">Selecione...</option>
-                <option value="solteiro">Solteiro(a)</option>
-                <option value="casado">Casado(a)</option>
-                <option value="divorciado">Divorciado(a)</option>
-                <option value="viuvo">Viúvo(a)</option>
-                <option value="outro">Outro</option>
+                <option value="Solteiro(a)">Solteiro(a)</option>
+                <option value="Casado(a)">Casado(a)</option>
+                <option value="Divorciado(a)">Divorciado(a)</option>
+                <option value="Viúvo(a)">Viúvo(a)</option>
+                <option value="União Estável">União Estável</option>
               </select>
             </div>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="dizimista-form">Dizimista</Label>
-              <Switch id="dizimista-form" checked={dizimista} onCheckedChange={setDizimista} />
-            </div>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="batizado-form">Batizado</Label>
-              <Switch id="batizado-form" checked={batizado} onCheckedChange={setBatizado} />
-            </div>
-            <h3 className="col-span-4 text-md font-semibold mt-2">Cursos Realizados</h3>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="encontroComDeus-form">Encontro com Deus</Label>
-              <Switch id="encontroComDeus-form" checked={encontroComDeus} onCheckedChange={setEncontroComDeus} />
-            </div>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="cursoDeBatismo-form">Curso de Batismo</Label>
-              <Switch id="cursoDeBatismo-form" checked={cursoDeBatismo} onCheckedChange={setCursoDeBatismo} />
-            </div>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="maturidadeNoEspirito-form">Maturidade no Espírito</Label>
-              <Switch id="maturidadeNoEspirito-form" checked={maturidadeNoEspirito} onCheckedChange={setMaturidadeNoEspirito} />
-            </div>
-            <div className="flex items-center justify-between col-span-4">
-              <Label htmlFor="escolaDeLideres-form">Escola de Líderes</Label>
-              <Switch id="escolaDeLideres-form" checked={escolaDeLideres} onCheckedChange={setEscolaDeLideres} />
-            </div>
-            {outrosCursos.map((curso, index) => (
-              <div key={index} className="grid grid-cols-4 items-center gap-4 col-span-4">
-                <Label htmlFor={`outroCurso-${index}`} className="text-right">Outro Curso {index + 1}</Label>
-                <Input 
-                  id={`outroCurso-${index}`} 
-                  value={curso} 
-                  onChange={(e) => handleOutroCursoChange(index, e.target.value)} 
-                  className="col-span-2" 
-                />
-                {outrosCursos.length > 1 && (
-                  <Button variant="destructive" size="sm" onClick={() => handleRemoveOutroCurso(index)}>Remover</Button>
-                )}
-              </div>
-            ))}
-            <Button variant="outline" onClick={handleAddOutroCurso} className="col-span-4">Adicionar Outro Curso</Button>
           </div>
-          <DialogFooter>
+
+          {/* Switches em duas colunas */}
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="dizimista">Dizimista</Label>
+              <Switch id="dizimista" checked={dizimista} onCheckedChange={setDizimista} />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="batizado">Batizado</Label>
+              <Switch id="batizado" checked={batizado} onCheckedChange={setBatizado} />
+            </div>
+          </div>
+
+          <div className="py-4">
+            <h3 className="text-lg font-medium mb-3">Cursos Realizados</h3>
+            
+            {/* Cursos em duas colunas */}
+            <div className="grid grid-cols-2 gap-4">
+              <div className="flex items-center justify-between">
+                <Label htmlFor="encontroComDeus">Encontro com Deus</Label>
+                <Switch id="encontroComDeus" checked={encontroComDeus} onCheckedChange={setEncontroComDeus} />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="cursoDeBatismo">Curso de Batismo</Label>
+                <Switch id="cursoDeBatismo" checked={cursoDeBatismo} onCheckedChange={setCursoDeBatismo} />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="maturidadeNoEspirito">Maturidade no Espírito</Label>
+                <Switch id="maturidadeNoEspirito" checked={maturidadeNoEspirito} onCheckedChange={setMaturidadeNoEspirito} />
+              </div>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="escolaDeLideres">Escola de Líderes</Label>
+                <Switch id="escolaDeLideres" checked={escolaDeLideres} onCheckedChange={setEscolaDeLideres} />
+              </div>
+            </div>
+
+            <div className="mt-4">
+              {outrosCursos.map((curso, index) => (
+                <div key={`curso-${index}`} className="flex items-center gap-2 mb-2">
+                  <Input
+                    placeholder={`Outro Curso ${index + 1}`}
+                    value={curso}
+                    onChange={(e) => handleOutroCursoChange(index, e.target.value)}
+                  />
+                  {index > 0 && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      onClick={() => handleRemoveOutroCurso(index)}
+                    >
+                      <XCircle size={16} />
+                    </Button>
+                  )}
+                </div>
+              ))}
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAddOutroCurso}
+                className="mt-2"
+              >
+                Adicionar Outro Curso
+              </Button>
+            </div>
+          </div>
+
+          <DialogFooter className="mt-4">
             <Button variant="outline" onClick={() => setIsAddOrEditDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={handleSubmitMember} className="bg-church-button hover:bg-church-button/90">Salvar</Button>
+            <Button onClick={handleSubmitMember}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
-      {selectedMemberForView && (
+      {isViewDialogOpen && selectedMemberForView && (
         <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-          <DialogContent className="sm:max-w-lg bg-white">
+          <DialogContent className="sm:max-w-md bg-white max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Detalhes do Membro</DialogTitle>
             </DialogHeader>
-            <div className="py-4 space-y-2 max-h-[70vh] overflow-y-auto pr-2">
+            <div className="space-y-2">
               <p><strong>Nome:</strong> {selectedMemberForView.nome}</p>
               <p><strong>Telefone:</strong> {selectedMemberForView.telefone || "Não informado"}</p>
-              <p><strong>Idade:</strong> {selectedMemberForView.idade || "Não informado"}</p>
+              <p><strong>Idade:</strong> {selectedMemberForView.idade || "Não informada"}</p>
               <p><strong>Data de Nascimento:</strong> {formatDateForDisplay(selectedMemberForView.dataNascimento)}</p>
-              <p><strong>Função:</strong> {selectedMemberForView.funcao || "Não informado"}</p>
-              <p><strong>Profissão:</strong> {selectedMemberForView.profissao || "Não informado"}</p>
+              <p><strong>Função:</strong> {selectedMemberForView.funcao || "Não informada"}</p>
+              <p><strong>Profissão:</strong> {selectedMemberForView.profissao || "Não informada"}</p>
               <p><strong>Estado Civil:</strong> {selectedMemberForView.estadoCivil || "Não informado"}</p>
               <p><strong>Dizimista:</strong> {selectedMemberForView.dizimista ? "Sim" : "Não"}</p>
               <p><strong>Batizado:</strong> {selectedMemberForView.batizado ? "Sim" : "Não"}</p>
-              <h4 className="font-semibold mt-2">Cursos:</h4>
+              <p><strong>Cursos Realizados:</strong></p>
               <ul className="list-disc pl-5">
                 <li>Encontro com Deus: {selectedMemberForView.cursos?.encontroComDeus ? "Sim" : "Não"}</li>
                 <li>Curso de Batismo: {selectedMemberForView.cursos?.cursoDeBatismo ? "Sim" : "Não"}</li>
@@ -519,4 +547,3 @@ const Membros: React.FC = () => {
 };
 
 export default Membros;
-

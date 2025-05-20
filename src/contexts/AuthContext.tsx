@@ -1,6 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { auth, db } from "@/firebase";
-import { onAuthStateChanged, signInWithEmailAndPassword, signOut } from "firebase/auth";
+import { 
+  onAuthStateChanged, 
+  signInWithEmailAndPassword, 
+  signOut, 
+  sendPasswordResetEmail, 
+  confirmPasswordReset 
+} from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 
 // Tipos
@@ -9,6 +15,8 @@ interface AuthContextType {
   igrejaId: string | null;
   loading: boolean;
   logout: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>; // Nova função para recuperação de senha
+  confirmReset: (oobCode: string, newPassword: string) => Promise<void>; // Nova função para confirmar redefinição
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -97,11 +105,51 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  // Nova função para enviar email de recuperação de senha
+  const resetPassword = async (email: string) => {
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch (error: any) {
+      console.error("Erro ao enviar email de recuperação:", error);
+      
+      // Traduzir mensagens de erro comuns para português
+      if (error.code === 'auth/user-not-found') {
+        throw new Error("Não existe usuário com este email.");
+      } else if (error.code === 'auth/invalid-email') {
+        throw new Error("O formato do email é inválido.");
+      } else if (error.code === 'auth/too-many-requests') {
+        throw new Error("Muitas tentativas. Tente novamente mais tarde.");
+      } else {
+        throw new Error("Erro ao enviar email de recuperação. Tente novamente.");
+      }
+    }
+  };
+
+  // Nova função para confirmar redefinição de senha
+  const confirmReset = async (oobCode: string, newPassword: string) => {
+    try {
+      await confirmPasswordReset(auth, oobCode, newPassword);
+    } catch (error: any) {
+      console.error("Erro ao redefinir senha:", error);
+      
+      // Traduzir mensagens de erro comuns para português
+      if (error.code === 'auth/invalid-action-code') {
+        throw new Error("O código de redefinição é inválido ou expirou.");
+      } else if (error.code === 'auth/weak-password') {
+        throw new Error("A senha é muito fraca. Use pelo menos 6 caracteres.");
+      } else {
+        throw new Error("Erro ao redefinir senha. Tente novamente.");
+      }
+    }
+  };
+
   const value: AuthContextType = {
     currentUser,
     igrejaId,
     loading,
     logout,
+    resetPassword,
+    confirmReset
   };
 
   return (

@@ -13,9 +13,14 @@ const Relatorios: React.FC = () => {
   
   const [dataInicioFiltro, setDataInicioFiltro] = useState<Date | null>(null);
   const [dataFimFiltro, setDataFimFiltro] = useState<Date | null>(null);
+  const [categoriaFiltro, setCategoriaFiltro] = useState<string>("todas");
 
   const [tempDataInicio, setTempDataInicio] = useState<string>("");
   const [tempDataFim, setTempDataFim] = useState<string>("");
+  const [tempCategoria, setTempCategoria] = useState<string>("todas");
+  
+  // Estado para controlar a aba ativa
+  const [activeTab, setActiveTab] = useState<"financeiro" | "membros">("financeiro");
 
   const toggleFilterPanel = () => {
     setShowFilterPanel(!showFilterPanel);
@@ -27,13 +32,17 @@ const Relatorios: React.FC = () => {
     
     setDataInicioFiltro(inicio);
     setDataFimFiltro(fim);
+    setCategoriaFiltro(tempCategoria);
+    setShowFilterPanel(false);
   };
 
   const handleClearDateFilter = () => {
     setTempDataInicio("");
     setTempDataFim("");
+    setTempCategoria("todas");
     setDataInicioFiltro(null);
     setDataFimFiltro(null);
+    setCategoriaFiltro("todas");
   };
 
   useEffect(() => {
@@ -45,9 +54,9 @@ const Relatorios: React.FC = () => {
     setDataInicioFiltro(primeiroDiaDoMes);
     setDataFimFiltro(ultimoDiaDoMes);
 
-    // Preenche os inputs temporários também, se desejar que apareçam no painel
-    // setTempDataInicio(primeiroDiaDoMes.toISOString().split('T')[0]);
-    // setTempDataFim(ultimoDiaDoMes.toISOString().split('T')[0]);
+    // Preenche os inputs temporários também, para que apareçam no painel
+    setTempDataInicio(primeiroDiaDoMes.toISOString().split('T')[0]);
+    setTempDataFim(ultimoDiaDoMes.toISOString().split('T')[0]);
 
   }, []); // Executa apenas uma vez ao montar o componente
 
@@ -56,13 +65,17 @@ const Relatorios: React.FC = () => {
     <DashboardLayout>
       <RelatorioHeader 
         title="Relatórios" 
-        // onDateChange={(inicio, fim) => { setDataInicioFiltro(inicio); setDataFimFiltro(fim); }}
-        // onFilterToggle={toggleFilterPanel} 
+        onFilterToggle={toggleFilterPanel}
+        showFilterButton={activeTab === "financeiro"}
+        dataInicio={dataInicioFiltro}
+        dataFim={dataFimFiltro}
+        tipoRelatorio={activeTab}
+        categoriaFiltro={categoriaFiltro}
       />
 
-      {showFilterPanel && (
+      {showFilterPanel && activeTab === "financeiro" && (
         <CardChurch className="mb-6 animate-fade-in">
-          <CardContent className="p-8 space-y-4">
+          <CardContent className="p-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label htmlFor="dataInicioInput" className="block text-sm font-medium text-gray-700 mb-1">Data Início</label>
@@ -87,8 +100,18 @@ const Relatorios: React.FC = () => {
               
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Categoria (Exemplo)</label>
-                <select className="w-full border rounded p-2">
-                  <option value="">Todas</option>
+                <select 
+                  className="w-full border rounded p-2"
+                  value={tempCategoria}
+                  onChange={(e) => setTempCategoria(e.target.value)}
+                >
+                  <option value="todas">Todas</option>
+                  <option value="dizimo">Dízimo</option>
+                  <option value="oferta">Oferta</option>
+                  <option value="campanha">Campanha</option>
+                  <option value="doacao">Doação</option>
+                  <option value="entradas">Total Entradas</option>
+                  <option value="saidas">Total Saídas</option>
                 </select>
               </div>
             </div>
@@ -100,14 +123,34 @@ const Relatorios: React.FC = () => {
         </CardChurch>
       )}
 
-      <Tabs defaultValue="financeiro" className="w-full mb-6">
+      <Tabs 
+        defaultValue="financeiro" 
+        className="w-full mb-6"
+        onValueChange={(value) => {
+          setActiveTab(value as "financeiro" | "membros");
+          // Esconde o painel de filtro ao trocar de aba
+          if (value !== "financeiro") {
+            setShowFilterPanel(false);
+          }
+        }}
+      >
         <TabsList className="grid w-full grid-cols-2 mb-6">
-          <TabsTrigger value="financeiro" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">Financeiro</TabsTrigger>
-          <TabsTrigger value="membros" className="data-[state=active]:bg-red-500 data-[state=inactive]:bg-white">Membros</TabsTrigger>
+          <TabsTrigger 
+            value="financeiro" 
+            className="data-[state=active]:bg-blue-500 data-[state=active]:text-white data-[state=inactive]:bg-blue-200"
+          >
+            Financeiro
+          </TabsTrigger>
+          <TabsTrigger 
+            value="membros" 
+            className="data-[state=active]:bg-purple-600 data-[state=active]:text-white data-[state=inactive]:bg-purple-200"
+          >
+            Membros
+          </TabsTrigger>
         </TabsList>
         
         <TabsContent value="financeiro" className="mt-0 border-0 p-0">
-            <FinanceiroTabs dataInicio={dataInicioFiltro} dataFim={dataFimFiltro} />
+            <FinanceiroTabs dataInicio={dataInicioFiltro} dataFim={dataFimFiltro} categoriaFiltro={categoriaFiltro} />
         </TabsContent>
         
         <TabsContent value="membros" className="mt-0 border-0 p-0">
@@ -121,4 +164,3 @@ const Relatorios: React.FC = () => {
 };
 
 export default Relatorios;
-

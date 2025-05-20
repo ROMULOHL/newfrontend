@@ -13,6 +13,8 @@ import Financeiro from "./pages/Financeiro";
 import Relatorios from "./pages/Relatorios";
 import Secretaria from "./pages/Secretaria";
 import Login from "./pages/Login";
+import ResetPassword from "./pages/ResetPassword"; // Importando o componente ResetPassword
+import ConfirmResetPassword from "./pages/ConfirmResetPassword";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +44,9 @@ const AppRoutesAndDataProviders = () => {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/forgot-password" element={<ResetPassword />} /> {/* Nova rota para recuperação de senha */}
+            <Route path="/reset-password" element={<ResetPassword />} /> {/* Rota alternativa para recuperação de senha */}
+            <Route path="/redefinir-senha" element={<ConfirmResetPassword />} /> {/* Nova rota para página personalizada de redefinição de senha */}
             <Route
               path="/"
               element={<ProtectedRoute><Dashboard /></ProtectedRoute>}

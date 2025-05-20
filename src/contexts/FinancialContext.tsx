@@ -8,10 +8,12 @@ import {
   onSnapshot,
   addDoc,
   doc,
-  // updateDoc, // Descomente se precisar atualizar transações
+  updateDoc, // Descomentado para atualizar transações
+  deleteDoc, // Adicionado para excluir transações
   Timestamp,
   getDocs,
   writeBatch, // Para operações atômicas em lote
+  getDoc, // Adicionado para buscar documento específico
 } from 'firebase/firestore';
 import { useAuth } from './AuthContext'; // Para obter o ID da igreja autenticada
 
@@ -126,6 +128,10 @@ interface FinancialContextType {
   loadingSaldos: boolean;
   addEntrada: (entradaData: Omit<Entrada, 'id' | 'igrejaId' | 'tipo' | 'pago' | 'dataCadastro' | 'ultimaAtualizacao'>) => Promise<string | undefined>; // Retorna o ID da transação
   addSaida: (saidaData: Omit<Saida, 'id' | 'igrejaId' | 'tipo' | 'pago' | 'dataCadastro' | 'ultimaAtualizacao'>) => Promise<string | undefined>; // Retorna o ID da transação
+  updateEntrada: (id: string, entradaData: Partial<Omit<Entrada, 'id' | 'igrejaId' | 'tipo' | 'dataCadastro'>>) => Promise<void>; // Nova função para atualizar entrada
+  updateSaida: (id: string, saidaData: Partial<Omit<Saida, 'id' | 'igrejaId' | 'tipo' | 'dataCadastro'>>) => Promise<void>; // Nova função para atualizar saída
+  deleteEntrada: (id: string) => Promise<void>; // Nova função para excluir entrada
+  deleteSaida: (id: string) => Promise<void>; // Nova função para excluir saída
   getTransacoesPorMes: (ano: number, mes: number) => Promise<Transacao[]>;
   calcularSaldos: (transacoesFiltradas: Transacao[], todasTransacoes: Transacao[]) => Saldos;
 }
@@ -322,8 +328,277 @@ const FinancialProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [igrejaId]);
 
+  // Nova função para atualizar uma entrada
+  const updateEntrada = useCallback(async (id: string, entradaData: Partial<Omit<Entrada, 'id' | 'igrejaId' | 'tipo' | 'dataCadastro'>>): Promise<void> => {
+    if (!igrejaId) throw new Error("ID da Igreja não encontrado.");
+    if (!id) throw new Error("ID da transação não fornecido.");
+
+    try {
+      // Buscar a transação atual para verificar se é uma entrada e se é um dízimo
+      const transacaoRef = doc(firestore, `igrejas/${igrejaId}/transacoes/${id}`);
+      const transacaoSnap = await getDoc(transacaoRef);
+      
+      if (!transacaoSnap.exists()) {
+        throw new Error("Transação não encontrada.");
+      }
+      
+      const transacaoAtual = transacaoSnap.data() as Entrada;
+      
+      if (transacaoAtual.tipo !== 'entrada') {
+        throw new Error("A transação não é uma entrada.");
+      }
+
+      // Preparar dados para atualização
+      const dataParaAtualizar: Partial<Entrada> = {
+        ...entradaData,
+        ultimaAtualizacao: Timestamp.now(),
+      };
+
+      // Se houver alteração na categoria, padronizar
+      if (entradaData.categoria) {
+        dataParaAtualizar.categoria = padronizarTexto(entradaData.categoria) as TipoEntrada;
+      }
+
+      // Se houver alteração na forma de pagamento, padronizar
+      if (entradaData.formaPagamento) {
+        dataParaAtualizar.formaPagamento = padronizarTexto(entradaData.formaPagamento) as FormaPagamento;
+      }
+
+      // Se houver alteração na data, converter para Timestamp
+      if (entradaData.data) {
+        dataParaAtualizar.data = Timestamp.fromDate(
+          entradaData.data instanceof Timestamp ? entradaData.data.toDate() : entradaData.data
+        );
+      }
+
+      const batch = writeBatch(firestore);
+      batch.update(transacaoRef, dataParaAtualizar);
+
+      // Verificar se é um dízimo e se tem membroId para atualizar na subcoleção do membro
+      const eraDizimo = transacaoAtual.categoria === 'Dízimo';
+      const ehDizimoAgora = dataParaAtualizar.categoria === 'Dízimo' || (eraDizimo && !dataParaAtualizar.categoria);
+      const membroId = dataParaAtualizar.membroId || transacaoAtual.membroId;
+
+      if (ehDizimoAgora && membroId) {
+        // Buscar o registro de dízimo na subcoleção do membro
+        const dizimoQuery = query(
+          collection(firestore, `igrejas/${igrejaId}/membros/${membroId}/dizimos`),
+          where('transacaoId', '==', id)
+        );
+        const dizimoSnap = await getDocs(dizimoQuery);
+
+        if (!dizimoSnap.empty) {
+          // Atualizar o registro existente
+          const dizimoDoc = dizimoSnap.docs[0];
+          const dizimoRef = doc(firestore, `igrejas/${igrejaId}/membros/${membroId}/dizimos/${dizimoDoc.id}`);
+          
+          const dizimoDataParaAtualizar: Partial<DizimoMembro> = {
+            valor: dataParaAtualizar.valor !== undefined ? dataParaAtualizar.valor : transacaoAtual.valor,
+            data: dataParaAtualizar.data || transacaoAtual.data,
+            formaPagamento: dataParaAtualizar.formaPagamento || transacaoAtual.formaPagamento,
+            descricao: dataParaAtualizar.descricao !== undefined ? dataParaAtualizar.descricao : transacaoAtual.descricao,
+          };
+          
+          batch.update(dizimoRef, dizimoDataParaAtualizar);
+        } else if (eraDizimo && membroId !== transacaoAtual.membroId) {
+          // Se o membroId mudou, remover o registro antigo e criar um novo
+          if (transacaoAtual.membroId) {
+            const dizimoAntigoQuery = query(
+              collection(firestore, `igrejas/${igrejaId}/membros/${transacaoAtual.membroId}/dizimos`),
+              where('transacaoId', '==', id)
+            );
+            const dizimoAntigoSnap = await getDocs(dizimoAntigoQuery);
+            
+            if (!dizimoAntigoSnap.empty) {
+              const dizimoAntigoDoc = dizimoAntigoSnap.docs[0];
+              const dizimoAntigoRef = doc(firestore, `igrejas/${igrejaId}/membros/${transacaoAtual.membroId}/dizimos/${dizimoAntigoDoc.id}`);
+              batch.delete(dizimoAntigoRef);
+            }
+          }
+          
+          // Criar novo registro para o novo membro
+          const novoDizimoData: Omit<DizimoMembro, 'id'> = {
+            transacaoId: id,
+            igrejaId,
+            membroId,
+            valor: dataParaAtualizar.valor !== undefined ? dataParaAtualizar.valor : transacaoAtual.valor,
+            data: dataParaAtualizar.data || transacaoAtual.data,
+            formaPagamento: dataParaAtualizar.formaPagamento || transacaoAtual.formaPagamento,
+            descricao: dataParaAtualizar.descricao !== undefined ? dataParaAtualizar.descricao : transacaoAtual.descricao,
+            dataCadastro: Timestamp.now(),
+          };
+          
+          const novoDizimoRef = doc(collection(firestore, `igrejas/${igrejaId}/membros/${membroId}/dizimos`));
+          batch.set(novoDizimoRef, novoDizimoData);
+        } else if (!eraDizimo && ehDizimoAgora) {
+          // Se não era dízimo antes, mas agora é, criar um novo registro
+          const novoDizimoData: Omit<DizimoMembro, 'id'> = {
+            transacaoId: id,
+            igrejaId,
+            membroId,
+            valor: dataParaAtualizar.valor !== undefined ? dataParaAtualizar.valor : transacaoAtual.valor,
+            data: dataParaAtualizar.data || transacaoAtual.data,
+            formaPagamento: dataParaAtualizar.formaPagamento || transacaoAtual.formaPagamento,
+            descricao: dataParaAtualizar.descricao !== undefined ? dataParaAtualizar.descricao : transacaoAtual.descricao,
+            dataCadastro: Timestamp.now(),
+          };
+          
+          const novoDizimoRef = doc(collection(firestore, `igrejas/${igrejaId}/membros/${membroId}/dizimos`));
+          batch.set(novoDizimoRef, novoDizimoData);
+        }
+      } else if (eraDizimo && !ehDizimoAgora && transacaoAtual.membroId) {
+        // Se era dízimo antes, mas agora não é, remover o registro
+        const dizimoQuery = query(
+          collection(firestore, `igrejas/${igrejaId}/membros/${transacaoAtual.membroId}/dizimos`),
+          where('transacaoId', '==', id)
+        );
+        const dizimoSnap = await getDocs(dizimoQuery);
+        
+        if (!dizimoSnap.empty) {
+          const dizimoDoc = dizimoSnap.docs[0];
+          const dizimoRef = doc(firestore, `igrejas/${igrejaId}/membros/${transacaoAtual.membroId}/dizimos/${dizimoDoc.id}`);
+          batch.delete(dizimoRef);
+        }
+      }
+
+      await batch.commit();
+    } catch (error) {
+      console.error("Erro ao atualizar entrada: ", error);
+      throw error;
+    }
+  }, [igrejaId]);
+
+  // Nova função para atualizar uma saída
+  const updateSaida = useCallback(async (id: string, saidaData: Partial<Omit<Saida, 'id' | 'igrejaId' | 'tipo' | 'dataCadastro'>>): Promise<void> => {
+    if (!igrejaId) throw new Error("ID da Igreja não encontrado.");
+    if (!id) throw new Error("ID da transação não fornecido.");
+
+    try {
+      // Buscar a transação atual para verificar se é uma saída
+      const transacaoRef = doc(firestore, `igrejas/${igrejaId}/transacoes/${id}`);
+      const transacaoSnap = await getDoc(transacaoRef);
+      
+      if (!transacaoSnap.exists()) {
+        throw new Error("Transação não encontrada.");
+      }
+      
+      const transacaoAtual = transacaoSnap.data();
+      
+      if (transacaoAtual.tipo !== 'saida') {
+        throw new Error("A transação não é uma saída.");
+      }
+
+      // Preparar dados para atualização
+      const dataParaAtualizar: Partial<Saida> = {
+        ...saidaData,
+        ultimaAtualizacao: Timestamp.now(),
+      };
+
+      // Se houver alteração na categoria, padronizar
+      if (saidaData.categoria) {
+        dataParaAtualizar.categoria = padronizarTexto(saidaData.categoria) as TipoSaida;
+      }
+
+      // Se houver alteração na categoria principal, padronizar
+      if (saidaData.categoriaPrincipal) {
+        dataParaAtualizar.categoriaPrincipal = padronizarTexto(saidaData.categoriaPrincipal);
+      }
+
+      // Se houver alteração na subcategoria, padronizar
+      if (saidaData.subCategoria) {
+        dataParaAtualizar.subCategoria = padronizarTexto(saidaData.subCategoria);
+      }
+
+      // Se houver alteração na data, converter para Timestamp
+      if (saidaData.data) {
+        dataParaAtualizar.data = Timestamp.fromDate(
+          saidaData.data instanceof Timestamp ? saidaData.data.toDate() : saidaData.data
+        );
+      }
+
+      await updateDoc(transacaoRef, dataParaAtualizar);
+    } catch (error) {
+      console.error("Erro ao atualizar saída: ", error);
+      throw error;
+    }
+  }, [igrejaId]);
+
+  // Nova função para excluir uma entrada
+  const deleteEntrada = useCallback(async (id: string): Promise<void> => {
+    if (!igrejaId) throw new Error("ID da Igreja não encontrado.");
+    if (!id) throw new Error("ID da transação não fornecido.");
+
+    try {
+      // Buscar a transação para verificar se é uma entrada e se é um dízimo
+      const transacaoRef = doc(firestore, `igrejas/${igrejaId}/transacoes/${id}`);
+      const transacaoSnap = await getDoc(transacaoRef);
+      
+      if (!transacaoSnap.exists()) {
+        throw new Error("Transação não encontrada.");
+      }
+      
+      const transacao = transacaoSnap.data() as Entrada;
+      
+      if (transacao.tipo !== 'entrada') {
+        throw new Error("A transação não é uma entrada.");
+      }
+
+      const batch = writeBatch(firestore);
+      batch.delete(transacaoRef);
+
+      // Se for um dízimo e tiver membroId, remover da subcoleção do membro
+      if (transacao.categoria === 'Dízimo' && transacao.membroId) {
+        const dizimoQuery = query(
+          collection(firestore, `igrejas/${igrejaId}/membros/${transacao.membroId}/dizimos`),
+          where('transacaoId', '==', id)
+        );
+        const dizimoSnap = await getDocs(dizimoQuery);
+        
+        if (!dizimoSnap.empty) {
+          dizimoSnap.forEach((doc) => {
+            batch.delete(doc.ref);
+          });
+        }
+      }
+
+      await batch.commit();
+    } catch (error) {
+      console.error("Erro ao excluir entrada: ", error);
+      throw error;
+    }
+  }, [igrejaId]);
+
+  // Nova função para excluir uma saída
+  const deleteSaida = useCallback(async (id: string): Promise<void> => {
+    if (!igrejaId) throw new Error("ID da Igreja não encontrado.");
+    if (!id) throw new Error("ID da transação não fornecido.");
+
+    try {
+      // Buscar a transação para verificar se é uma saída
+      const transacaoRef = doc(firestore, `igrejas/${igrejaId}/transacoes/${id}`);
+      const transacaoSnap = await getDoc(transacaoRef);
+      
+      if (!transacaoSnap.exists()) {
+        throw new Error("Transação não encontrada.");
+      }
+      
+      const transacao = transacaoSnap.data();
+      
+      if (transacao.tipo !== 'saida') {
+        throw new Error("A transação não é uma saída.");
+      }
+
+      await deleteDoc(transacaoRef);
+    } catch (error) {
+      console.error("Erro ao excluir saída: ", error);
+      throw error;
+    }
+  }, [igrejaId]);
+
+  // Função para obter transações de um mês específico
   const getTransacoesPorMes = useCallback(async (ano: number, mes: number): Promise<Transacao[]> => {
-    if (!igrejaId) return [];
+    if (!igrejaId) throw new Error("ID da Igreja não encontrado.");
+
     setLoadingTransacoes(true);
     const inicioMes = new Date(ano, mes - 1, 1);
     const fimMes = new Date(ano, mes, 0, 23, 59, 59, 999);
@@ -369,8 +644,9 @@ const FinancialProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     }
   }, [igrejaId]);
 
+  // Função para calcular saldos - MODIFICADA para não atualizar estado diretamente
   const calcularSaldos = useCallback((transacoesFiltradas: Transacao[], todasAsTransacoes: Transacao[]): Saldos => {
-    setLoadingSaldos(true);
+    // Removida a linha: setLoadingSaldos(true);
     let entradasMes = 0;
     let saidasMes = 0;
     const distribuicao: { [key: string]: number } = {};
@@ -406,7 +682,7 @@ const FinancialProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
       }))
       .sort((a, b) => b.valor - a.valor);
     
-    setLoadingSaldos(false);
+    // Removida a linha: setLoadingSaldos(false);
     return {
       entradasMes,
       saidasMes,
@@ -416,6 +692,15 @@ const FinancialProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     };
   }, []);
 
+  // NOVO useEffect para atualizar saldos quando as transações mudarem
+  useEffect(() => {
+    if (!loadingTransacoes) {
+      const saldosCalculados = calcularSaldos(transacoes, transacoes);
+      setSaldos(saldosCalculados);
+      setLoadingSaldos(false);
+    }
+  }, [transacoes, loadingTransacoes, calcularSaldos]);
+
   const value = {
     transacoes,
     saldos,
@@ -423,6 +708,10 @@ const FinancialProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     loadingSaldos,
     addEntrada,
     addSaida,
+    updateEntrada,
+    updateSaida,
+    deleteEntrada,
+    deleteSaida,
     getTransacoesPorMes,
     calcularSaldos,
   };
