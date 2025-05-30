@@ -21,7 +21,14 @@ export function toDate(date: any): Date {
     return date.toDate();
   }
   
-  // Se for string ou número
+  // Se for string no formato DD/MM/YYYY
+  if (typeof date === 'string' && date.includes('/')) {
+    const [day, month, year] = date.split('/').map(Number);
+    // Cria a data usando UTC para evitar problemas de fuso horário
+    return new Date(Date.UTC(year, month - 1, day, 12, 0, 0));
+  }
+  
+  // Para outros formatos de string ou número
   return new Date(date);
 }
 

@@ -162,14 +162,14 @@ const Dashboard = () => {
   };
   
   // Formatação de data
-  const formatarData = (data: Date | null) => {
-    if (!data) return "";
-    
-    const dia = String(data.getDate()).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    
-    return `${dia} de ${obterNomeMes(data.getMonth())}`;
-  };
+const formatarData = (data: Date | null) => {
+  if (!data) return "";
+  
+  // Usar UTC para evitar problemas de fuso horário
+  const dia = String(data.getUTCDate()).padStart(2, '0');
+  
+  return `${dia} de ${obterNomeMes(data.getMonth())}`;
+};
   
   // Obter nome do mês
   const obterNomeMes = (mes: number) => {
